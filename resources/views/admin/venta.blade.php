@@ -95,10 +95,13 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                            data-bs-target="#editar_producto{{ $producto->id_producto }}">
-                                                Editar
+                                        <button
+                                            class="btn btn-primary btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editar_venta{{ $venta->id_venta }}">
+                                            Editar
                                         </button>
+
                                         {{-- <a href="{{ route('producto.archivar', $producto->id_producto) }}"
                                             class="btn btn-warning"
                                             onclick="return confirm('¿Seguro que deseas archivar esta categoría?');">
@@ -120,66 +123,89 @@
             </div>
         </div>
     </div>
-    {{-- @foreach ($productos as $producto)
-        <div class="modal fade" id="editar_producto{{ $producto->id_producto }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
+    @foreach ($ventas as $venta)
+    <div class="modal fade" id="editar_venta{{ $venta->id_venta }}" tabindex="-1" aria-labelledby="editarVentaLabel{{ $venta->id_venta }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editarVentaLabel{{ $venta->id_venta }}">
+                        Editar Venta #{{ $venta->id_venta }}
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <form method="POST" action="{{ route('ventas.update', $venta->id_venta) }}">
+                    @csrf
+                    @method('PUT')
+
                     <div class="modal-body">
-                        <form method="POST" action="{{ route("productos.update", $producto->id_producto)  }}">
-                            @method('PUT')
-                            @csrf
-                            <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">nombre producto</label>
-                                <input type="text" class="form-control" name="nombre_producto" value="{{ $producto->nombre_producto }}">
-                            </div>
 
-                            <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">descripcion producto</label>
-                                <input type="text" class="form-control" name="descripcion_producto" value="{{ $producto->descripcion_producto }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">precio producto</label>
-                                <input type="text" class="form-control" name="precio_producto" value="{{ $producto->precio_producto }}">
-                            </div>
-                            <div class="mb-3">
-                            <label for="id_categoria" class="form-label">Categoría</label>
+                        {{-- Producto --}}
+                        <div class="mb-3">
+                            <label class="form-label">Producto</label>
 
-                            @if ($ventas->isEmpty())
-                                <div class="alert alert-warning mt-2">
-                                    No hay registro de categoría
-                                    <br>
-                                    <a href="{{ route('categorias.index') }}" class="alert-link">Registra una categoría</a>
-                                </div>
-                            @else
-                                <select name="id_categoria" id="id_categoria" class="form-select" aria-label="Default select example">
-                                    @foreach ($categorias as $categoria)
-                                        <option value="{{ $categoria->id_categoria }}"
-                                            @selected(isset($registro) && $registro->id_categoria == $categoria->id_categoria)>
-                                            {{ $categoria->nombre_categoria }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                            <select name="id_producto" class="form-select producto-select"
+                                    data-precio-id="precio{{ $venta->id_venta }}">
+                                @foreach ($productos as $producto)
+                                    <option value="{{ $producto->id_producto }}"
+                                        data-precio="{{ $producto->precio_producto }}"
+                                        {{ $venta->id_producto == $producto->id_producto ? 'selected' : '' }}>
+                                        {{ $producto->nombre_producto }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                            @endif
+                        {{-- Precio --}}
+                        <div class="mb-3">
+                            <label class="form-label">Precio Unitario</label>
+                            <input type="text"
+                                id="precio{{ $venta->id_venta }}"
+                                class="form-control"
+                                name="precio_unitario"
+                                value="{{ $venta->precio_unitario }}"
+                                readonly>
+                        </div>
+
+                        {{-- Cantidad --}}
+                        <div class="mb-3">
+                            <label class="form-label">Cantidad</label>
+                            <input type="number"
+                                class="form-control cantidad-input"
+                                data-precio-id="precio{{ $venta->id_venta }}"
+                                data-total-id="total{{ $venta->id_venta }}"
+                                name="cantidad_producto"
+                                min="1"
+                                value="{{ $venta->cantidad_producto }}">
+                        </div>
+
+                        {{-- Total --}}
+                        <div class="mb-3">
+                            <label class="form-label">Total a Pagar</label>
+                            <input type="text"
+                                id="total{{ $venta->id_venta }}"
+                                class="form-control"
+                                name="total_a_pagar"
+                                value="{{ $venta->total_a_pagar }}"
+                                readonly>
                         </div>
 
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="submit" class="btn btn-primary">Actualizar</button>
+                        <button type="submit" class="btn btn-primary">Actualizar Venta</button>
                     </div>
-                    </form>
 
-                </div>
+                </form>
             </div>
         </div>
-    @endforeach --}}
+    </div>
+@endforeach
+
 <script>
-document.getElementById('id_producto').addEventListener('change', function() {
+document.getElementById('id_producto').addEventListener('change', function () {
     let productoID = this.value;
 
     if (productoID) {
@@ -187,9 +213,22 @@ document.getElementById('id_producto').addEventListener('change', function() {
             .then(response => response.json())
             .then(data => {
                 document.getElementById('precio_unitario').value = data.precio_producto;
+                calcularTotal();
             });
     }
 });
+
+document.getElementById('cantidad_producto').addEventListener('input', calcularTotal);
+
+function calcularTotal() {
+    let precio = parseFloat(document.getElementById('precio_unitario').value);
+    let cantidad = parseInt(document.getElementById('cantidad_producto').value);
+
+    if (!isNaN(precio) && !isNaN(cantidad)) {
+        document.getElementById('total_a_pagar').value = precio * cantidad;
+    }
+}
 </script>
+
 
 </x-app-layout>

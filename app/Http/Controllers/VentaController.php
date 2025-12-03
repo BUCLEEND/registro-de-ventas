@@ -58,18 +58,33 @@ class VentaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+    $venta = Venta::findOrFail($id);
+    $productos = Producto::all();
+
+    return view('admin.venta_edit', compact('venta', 'productos'));
     }
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+    $venta = Venta::findOrFail($id);
+
+    $venta->update([
+        'id_producto'     => $request->id_producto,
+        'cantidad_producto' => $request->cantidad_producto,
+        'precio_unitario' => $request->precio_unitario,
+        'total_a_pagar'   => $request->total_a_pagar,
+    ]);
+
+    return redirect()->route('ventas.index')
+                     ->with('success', 'Venta actualizada correctamente');
     }
+
 
     /**
      * Remove the specified resource from storage.
