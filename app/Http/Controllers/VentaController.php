@@ -6,6 +6,7 @@ use App\Models\Producto;
 use App\Models\Venta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class VentaController extends Controller
 {
@@ -14,9 +15,31 @@ class VentaController extends Controller
      */
     public function index()
     {
-        $ventas = Venta::all();
-        $productos = Producto::all() ;
-        return view("admin.venta", compact("ventas","productos"));
+        $ventas = Venta::with('producto', 'user')->get();
+        $productos = Producto::all();
+
+        // ================================
+        // 📊 Participación de ventas por producto
+        // ================================
+        $participacion = Venta::select(
+                'id_producto',
+                DB::raw('SUM(total_a_pagar) as total')
+            )
+            ->groupBy('id_producto')
+            ->with('producto') // Para obtener el nombre del producto
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'producto' => $item->producto ? $item->producto->nombre_producto : 'Sin nombre',
+                    'total'    => $item->total,
+                ];
+            });
+
+        return view("admin.venta", compact(
+            "ventas",
+            "productos",
+            "participacion"
+        ));
     }
 
     /**
@@ -28,7 +51,7 @@ class VentaController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created resource.
      */
     public function store(Request $request)
     {
@@ -39,56 +62,39 @@ class VentaController extends Controller
         $data["cantidad_producto"] = 1;
         $data["id_user"] = $auth->id;
 
-        // Calcular total
-
         Venta::create($data);
 
         return redirect()->back()->with("success", "Venta registrada correctamente");
     }
 
-
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id)
     {
-    $venta = Venta::findOrFail($id);
-    $productos = Producto::all();
+        $venta = Venta::findOrFail($id);
+        $productos = Producto::all();
 
-    return view('admin.venta_edit', compact('venta', 'productos'));
+        return view('admin.venta_edit', compact('venta', 'productos'));
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
-    $venta = Venta::findOrFail($id);
+        $venta = Venta::findOrFail($id);
 
-    $venta->update([
-        'id_producto'     => $request->id_producto,
-        'cantidad_producto' => $request->cantidad_producto,
-        'precio_unitario' => $request->precio_unitario,
-        'total_a_pagar'   => $request->total_a_pagar,
-    ]);
+        $venta->update([
+            'id_producto'       => $request->id_producto,
+            'cantidad_producto' => $request->cantidad_producto,
+            'precio_unitario'   => $request->precio_unitario,
+            'total_a_pagar'     => $request->total_a_pagar,
+        ]);
 
-    return redirect()->route('ventas.index')
-                     ->with('success', 'Venta actualizada correctamente');
+        return redirect()->route('ventas.index')
+                         ->with('success', 'Venta actualizada correctamente');
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         //

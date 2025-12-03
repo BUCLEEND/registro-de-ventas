@@ -76,6 +76,7 @@
                                 <th scope="col">Total pago</th>
                                 <th scope="col">Fecha de creacion</th>
                                 <th scope="col">Estado</th>
+                                <th scope="col">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>

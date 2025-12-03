@@ -7,175 +7,264 @@
 
     <div class="py-12">
         <div class="container">
-            <div class="row">
 
+            <!-- TARJETAS DE RESUMEN -->
+            <div class="row g-4 mb-5">
                 <!-- TARJETA: Total Categorías -->
-                <div class="col-4">
-                    <div class="card" style="width: 18rem;">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body">
-                            <h5 class="card-title">Total de categorías</h5>
-                            <h6 class="card-subtitle mb-2 text-body-secondary">
-                                {{ $total_categorias ?? 0 }}
-                            </h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-2">Total de categorías</h6>
+                                    <h2 class="mb-0 fw-bold">{{ $total_categorias ?? 0 }}</h2>
+                                </div>
+                                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                    <i class="bi bi-folder text-primary fs-3"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- TARJETA: Total Productos -->
-                <div class="col-4">
-                    <div class="card" style="width: 18rem;">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body">
-                            <h5 class="card-title">Total de productos</h5>
-                            <h6 class="card-subtitle mb-2 text-body-secondary">
-                                {{ $total_productos ?? 0 }}
-                            </h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-2">Total de productos</h6>
+                                    <h2 class="mb-0 fw-bold">{{ $total_productos ?? 0 }}</h2>
+                                </div>
+                                <div class="bg-success bg-opacity-10 p-3 rounded">
+                                    <i class="bi bi-box-seam text-success fs-3"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- TARJETA: Total Ventas -->
-                <div class="col-4">
-                    <div class="card" style="width: 18rem;">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body">
-                            <h5 class="card-title">Total de ventas</h5>
-                            <h6 class="card-subtitle mb-2 text-body-secondary">
-                                {{ $total_ventas ?? 0 }}
-                            </h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-2">Total de ventas</h6>
+                                    <h2 class="mb-0 fw-bold">{{ $total_ventas ?? 0 }}</h2>
+                                </div>
+                                <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                    <i class="bi bi-cart-check text-warning fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRÁFICAS -->
+            <div class="row g-4">
+
+                <!-- GRÁFICA DE VENTAS MENSUALES -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Ventas Mensuales</h5>
+                            <div id="chart"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRÁFICA DE PARTICIPACIÓN (DOUGHNUT) -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Participación por Producto</h5>
+                            <div class="d-flex justify-content-center align-items-center" style="height: 300px;">
+                                <canvas id="chartParticipacion"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRÁFICA DE PRODUCTOS MÁS VENDIDOS -->
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">Productos Más Vendidos</h5>
+                            <div id="graficoProductos"></div>
                         </div>
                     </div>
                 </div>
 
             </div>
 
+        </div>
+    </div>
 
-            <!-- ==========================
-                 GRÁFICA DE VENTAS POR MES
-            =========================== -->
-            <div class="row mt-5">
-                <div class="col-12">
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-                    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        // GRÁFICA DE VENTAS MENSUALES (ApexCharts)
+        var options = {
+            series: [{
+                name: 'Ventas S/',
+                data: @json($totales)
+            }],
+            chart: {
+                height: 350,
+                type: 'bar',
+                toolbar: {
+                    show: false
+                }
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 8,
+                    dataLabels: {
+                        position: 'top'
+                    },
+                    columnWidth: '60%'
+                }
+            },
+            colors: ['#0d6efd'],
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return "S/ " + val.toFixed(2);
+                },
+                offsetY: -20,
+                style: {
+                    fontSize: '12px',
+                    colors: ["#304758"]
+                }
+            },
+            xaxis: {
+                categories: @json($meses),
+                axisBorder: {
+                    show: false
+                },
+                axisTicks: {
+                    show: false
+                }
+            },
+            yaxis: {
+                labels: {
+                    formatter: function (val) {
+                        return "S/ " + val.toFixed(0);
+                    }
+                }
+            },
+            grid: {
+                borderColor: '#f1f1f1',
+            }
+        };
 
-                    <div id="chart" class="mt-4"></div>
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+    </script>
 
-                    <script>
-                        var options = {
-                            series: [{
-                                name: 'Ventas S/',
-                                data: @json($totales)
-                            }],
-                            chart: {
-                                height: 350,
-                                type: 'bar',
-                            },
-                            plotOptions: {
-                                bar: {
-                                    borderRadius: 10,
-                                    dataLabels: {
-                                        position: 'top'
-                                    }
-                                }
-                            },
-                            dataLabels: {
-                                enabled: true,
-                                formatter: function (val) {
-                                    return "S/ " + val;
-                                },
-                                offsetY: -20,
-                                style: {
-                                    fontSize: '12px',
-                                    colors: ["#304758"]
-                                }
-                            },
-                            xaxis: {
-                                categories: @json($meses),
-                                position: 'top',
-                                axisBorder: {
-                                    show: false
-                                },
-                                axisTicks: {
-                                    show: false
-                                }
-                            },
-                            yaxis: {
-                                labels: {
-                                    formatter: function (val) {
-                                        return "S/ " + val;
-                                    }
-                                }
-                            },
-                            title: {
-                                text: 'Ventas Mensuales',
-                                align: 'center',
-                                style: {
-                                    color: '#444'
-                                }
+    <script>
+        // GRÁFICA DE PRODUCTOS MÁS VENDIDOS (ApexCharts)
+        document.addEventListener("DOMContentLoaded", () => {
+            var opcionesProductos = {
+                series: [{
+                    name: "Cantidad vendida",
+                    data: @json($totalesProductos)
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    toolbar: {
+                        show: false
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        distributed: true,
+                        horizontal: false,
+                        borderRadius: 8,
+                        columnWidth: '50%'
+                    }
+                },
+                dataLabels: {
+                    enabled: true
+                },
+                xaxis: {
+                    categories: @json($nombresProductos),
+                },
+                legend: {
+                    show: false
+                },
+                grid: {
+                    borderColor: '#f1f1f1',
+                }
+            };
+
+            var graficoProductos = new ApexCharts(
+                document.querySelector("#graficoProductos"),
+                opcionesProductos
+            );
+
+            graficoProductos.render();
+        });
+    </script>
+
+    <script>
+        // GRÁFICA DE PARTICIPACIÓN (Chart.js - Doughnut)
+        const ctx = document.getElementById('chartParticipacion');
+        const dataLabels = @json($participacion->pluck('producto'));
+        const dataValues = @json($participacion->pluck('total'));
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: dataLabels,
+                datasets: [{
+                    data: dataValues,
+                    backgroundColor: [
+                        '#0d6efd',
+                        '#198754',
+                        '#ffc107',
+                        '#dc3545',
+                        '#0dcaf0',
+                        '#6f42c1',
+                        '#fd7e14',
+                        '#20c997'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12
                             }
-                        };
-
-                        var chart = new ApexCharts(document.querySelector("#chart"), options);
-                        chart.render();
-                    </script>
-
-                </div>
-            </div>
-
-        </div>
-    </div>
-    <div class="py-12">
-        <div class="container">
-            <div class="row">
-            <!-- ==========================
-                 GRÁFICA DE VENTAS POR MES
-            =========================== -->
-            <div class="row mt-5">
-                <div class="col-12">
-
-                    <div id="graficoProductos" class="mt-5"></div>
-
-                    <script>
-                        document.addEventListener("DOMContentLoaded", () => {
-
-                            var opcionesProductos = {
-                                series: [{
-                                    name: "Cantidad vendida",
-                                    data: @json($totalesProductos)
-                                }],
-                                chart: {
-                                    type: 'bar',
-                                    height: 350
-                                },
-                                plotOptions: {
-                                    bar: {
-                                        distributed: true,
-                                    }
-                                },
-                                dataLabels: {
-                                    enabled: true
-                                },
-                                xaxis: {
-                                    categories: @json($nombresProductos),
-                                },
-                                title: {
-                                    text: 'Productos más vendidos',
-                                    align: 'center'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
                                 }
-                            };
-
-                            var graficoProductos = new ApexCharts(
-                                document.querySelector("#graficoProductos"),
-                                opcionesProductos
-                            );
-
-                            graficoProductos.render();
-                        });
-                    </script>
-
-
-                </div>
-            </div>
-
-        </div>
-    </div>
+                                label += context.parsed + ' unidades';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 
 </x-app-layout>

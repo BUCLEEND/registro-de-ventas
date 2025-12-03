@@ -47,6 +47,11 @@ class DashboardController extends Controller
     $nombresProductos = $productosVendidos->pluck('nombre_producto');
     $totalesProductos = $productosVendidos->pluck('total');
 
+    $participacion = Venta::join('productos', 'ventas.id_producto', '=', 'productos.id_producto')
+    ->selectRaw('productos.nombre_producto as producto, SUM(ventas.total_a_pagar) as total')
+    ->groupBy('productos.nombre_producto')
+    ->get();
+
     return view("dashboard", compact(
         "total_categorias",
         "total_productos",
@@ -54,8 +59,10 @@ class DashboardController extends Controller
         "meses",
         "totales",
         "nombresProductos",
-        "totalesProductos"
+        "totalesProductos",
+        "participacion"
     ));
+
 }
 
 
